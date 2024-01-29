@@ -51,7 +51,7 @@ def run_ui():
     file_bytes = np.asarray(bytearray(uploaded_image.read()), dtype=np.uint8)
     image = cv2.imdecode(file_bytes, 1)
 
-    st.image(image)
+    st.image(image, channels="BGR")
 
     image = prepare_image(image)
 
@@ -59,4 +59,4 @@ def run_ui():
 
     prediction = stringify_prediction(prediction)
 
-    st.write(f"This is {prediction}")
+    st.write(f"This is a {prediction}")
