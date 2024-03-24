@@ -1,6 +1,6 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
-
+from keras.applications.inception_v3 import InceptionV3, preprocess_input
 from data_generation import train_data_generator, test_data_generator
 
 
@@ -14,6 +14,22 @@ def plot_history_acc(history: dict):
     plt.plot(history["accuracy"], "b", label="Training accuracy")
     plt.plot(history["val_accuracy"], "r", label="Validation accuracy")
     plt.show()
+
+
+def create_inception_model():
+    model = InceptionV3(weights="imagenet", include_top=False, input_shape=(128, 128, 3))
+    for layer in model.layers:
+        layer.trainable = False
+
+    x = tf.keras.layers.Flatten()(model.output)
+    x = tf.keras.layers.Dense(1024, activation="relu")(x)
+    x = tf.keras.layers.Dense(512, activation="relu")(x)
+    x = tf.keras.layers.Dense(128, activation="relu")(x)
+    output = tf.keras.layers.Dense(6, activation="softmax")(x)
+
+    model = tf.keras.Model(model.input, output)
+
+    return model
 
 
 def create_model():
@@ -30,7 +46,7 @@ def create_model():
         tf.keras.layers.Flatten(),
 
         tf.keras.layers.Dense(512, activation="relu"),
-        tf.keras.layers.Dense(512, activation="relu"),
+        tf.keras.layers.Dense(256, activation="relu"),
         tf.keras.layers.Dense(6, activation="softmax")
     ])
 
@@ -38,7 +54,7 @@ def create_model():
 
 
 def train_model(epochs=40):
-    model = create_model()
+    model = create_inception_model()
 
     model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
@@ -80,5 +96,5 @@ def test_model():
 
 
 if __name__ == '__main__':
-    train_model(40)
+    train_model(10)
     test_model()
