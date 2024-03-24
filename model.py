@@ -37,14 +37,29 @@ def create_model():
     return model
 
 
-def train_model():
+def train_model(epochs=40):
     model = create_model()
 
-    model.compile("adam", loss="categorical_crossentropy", metrics=["accuracy"])
+    model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
     train_generator, validation_generator = train_data_generator()
 
-    history = model.fit(train_generator, epochs=35, validation_data=validation_generator)
+    history = model.fit(train_generator, epochs=epochs, validation_data=validation_generator)
+
+    plot_history_loss(history.history)
+    plot_history_acc(history.history)
+
+    model.save("trained_model")
+
+    return model
+
+
+def train_exising_model(epochs=20):
+    model = tf.keras.models.load_model("trained_model")
+
+    train_generator, validation_generator = train_data_generator()
+
+    history = model.fit(train_generator, epochs=epochs, validation_data=validation_generator)
 
     plot_history_loss(history.history)
     plot_history_acc(history.history)
@@ -65,5 +80,5 @@ def test_model():
 
 
 if __name__ == '__main__':
-    train_model()
+    train_model(40)
     test_model()
